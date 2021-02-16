@@ -1,18 +1,29 @@
+import json
 import time
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPool2D, Dropout, Flatten, BatchNormalization
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from spark_tensorflow_distributor import MirroredStrategyRunner
-from pyspark.sql import SparkSession
+
 import sklearn
 import glob
 import os
 import cv2
 import numpy as np
 import tensorflow as tf
+from pyspark.sql import SparkSession
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" # Must corrispond to the current jdk used by colab
 os.environ["SPARK_HOME"] = "/opt/spark/" # Must corrispond with the downloaded spark (1st line)
+
+os.environ['TF_CONFIG'] = json.dumps({
+        'cluster': {
+            'worker': ["192.168.1.38:34478", "192.168.1.101:40392"]
+        },
+        'task': {'type': 'worker', 'index': 0}
+    })
+#strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
+
 
 def random_shuffled_dataset_part(preprocess):
     directory = preprocess.directory
@@ -44,6 +55,8 @@ def random_shuffled_dataset(preprocess):
 
 
 def training():
+    spark = SparkSession.builder.getOrCreate()
+    sc = spark.sparkContext
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     #tf.config.experimental.set_memory_growth(physical_devices[0], True)
     tf.compat.v1.reset_default_graph()
@@ -60,7 +73,7 @@ def training():
     #ACQUIRING DATASET AND PREPARING
     print("Spark application started...")
     #train_dir = "/media/andrea/Dati2/chest_xray/chest_xray/train"
-    train_dir = "/mnt/Dataset/chest_xray/train"
+    train_dir = "/media/andrea/Dati2/chest_xray/chest_xray/train"
     test_dir = "/media/andrea/Dati2/chest_xray/chest_xray/test"
     val_dir = "/media/andrea/Dati2/chest_xray/chest_xray/val"
 
@@ -89,18 +102,12 @@ def training():
     batch_size = 8
     img_dim = 320
     classes = 2
-    train = image_generator.flow_from_directory(train_dir,
+    train = image_generator.flow_from_directory(test_dir,
                                                 batch_size=8,
                                                 shuffle=True,
                                                 class_mode='binary',
                                                 target_size=(320, 320))
 
-    ds = tf.data.Dataset.from_generator(
-        lambda: train,
-        output_types=(tf.float32, tf.float32),
-        output_shapes=([batch_size, img_dim, img_dim, 3],
-                       [batch_size, classes])
-    )
     validation = image_generator.flow_from_directory(val_dir,
                                                      batch_size=8,
                                                      shuffle=True,
@@ -158,10 +165,12 @@ def training():
     #train_dataset = tf.data.Dataset.from_tensor_slices((shuffle_train, shuffle_labels_train)).batch(BATCH_SIZE)
     #val_dataset = tf.data.Dataset.from_tensor_slices((shuffle_valid, shuffle_labels_valid)).batch(len(shuffle_valid))
 
-    options = tf.data.Options()
-    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
-    ds = ds.with_options(options)
-    #train_dataset = train_dataset.with_options(options)
+
+    #with strategy.scope():
+
+    ds = sc.parallelize(validation)
+
+        #train_dataset = train_dataset.with_options(options)
 
 
     print("Creating model")
@@ -169,8 +178,8 @@ def training():
     print("Model Created!")
     print("Training...")
     start_time = time.time()
-    #multi_worker_model.fit(train_dataset, validation_data=val_dataset,epochs=5, batch_size=BATCH_SIZE, class_weight=class_weigths, verbose=True)
-    multi_worker_model.fit(train, epochs = 5, batch_size=1, class_weight = class_weigths, verbose=True,workers=2)
+        #multi_worker_model.fit(train_dataset, validation_data=val_dataset,epochs=5, batch_size=BATCH_SIZE, class_weight=class_weigths, verbose=True)
+    multi_worker_model.fit(ds, epochs = 5, class_weight = class_weigths, verbose=True,workers=2)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -180,20 +189,23 @@ def training():
 spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("testTrain")\
     .config("spark.driver.memory" , "2g").\
     config("spark.executor.memory" , "2g").\
-    config("spark.python.worker.reuse", "False").\
-    config("spark.driver.resource.gpu.discoveryScript", "/opt/spark/examples/src/main/scripts/getGpusResources.sh").\
-    config("spark.executor.resource.gpu.discoveryScript", "/opt/spark/examples/src/main/scripts/getGpusResources.sh").\
-    config("spark.driver.resource.gpu.amount", "0.3").\
-    config("spark.executor.resource.gpu.amount", "2").\
-    config("spark.task.resource.gpu.amount", "1").\
-    enableHiveSupport().getOrCreate()
+    config("spark.python.worker.reuse", "False").enableHiveSupport().getOrCreate()
+sc = spark.sparkContext
+sc.setLogLevel("Error")
+    #config("spark.driver.resource.gpu.discoveryScript", "/opt/spark/examples/src/main/scripts/getGpusResources.sh")
+    #config("spark.executor.resource.gpu.discoveryScript", "/opt/spark/examples/src/main/scripts/getGpusResources.sh").\
+    #config("spark.driver.resource.gpu.amount", "0.3").\
+    #config("spark.executor.resource.gpu.amount", "2").\
+    #config("spark.task.resource.gpu.amount", "1").\
+
 
 #spark.conf.set("spark.executor.memory" , "4g")
-sc = spark.sparkContext
+
 #mem = sc._conf.get('spark.executor.memory')
-sc.setLogLevel("Error")
+
 
 
 #a = sc.parallelize([shuffle_train, shuffle_labels_train])
 #train_set, train_labels, validation_set, validation_labels,class_weigths
-MirroredStrategyRunner(num_slots=2,use_gpu=True,spark=spark,local_mode=False,use_custom_strategy=False).run(training)
+MirroredStrategyRunner(num_slots=2,use_gpu=False,spark=spark,local_mode=False,use_custom_strategy=True).run(training)
+#training()

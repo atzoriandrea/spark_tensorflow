@@ -1,6 +1,9 @@
 import time
-
+import os
+from pyspark.sql import SparkSession
 from spark_tensorflow_distributor import MirroredStrategyRunner
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" # Must corrispond to the current jdk used by colab
+os.environ["SPARK_HOME"] = "/opt/spark/"
  # Must corrispond with the downloaded spark (1st line)
 
 def random_shuffled_dataset_part(preprocess):
@@ -98,20 +101,6 @@ def training():
                                                 class_mode='binary',
                                                 target_size=(320, 320))
 
-    cl2 = train.classes
-    cl2 = cl2-1
-    cl2 = abs(cl2)
-    cl1 = train.classes
-
-    train.classes = [cl1, cl2]
-
-    ds = tf.data.Dataset.from_generator(
-        lambda: train,
-        output_types=(tf.float32, tf.float32),
-        output_shapes=([batch_size, img_dim, img_dim, 3],
-                       [batch_size, classes])
-    )
-
 
     validation = image_generator.flow_from_directory(val_dir,
                                                      batch_size=8,
@@ -124,14 +113,14 @@ def training():
                                                shuffle=True,
                                                class_mode='binary',
                                                target_size=(320, 320))
-
-    batch_size = 8
-    img_dim = 320
-    classes = 2
+    ds = tf.data.Dataset.from_generator(
+        lambda: test,
+        output_types=(tf.float32, tf.float32),
+        output_shapes=([batch_size, img_dim, img_dim, 3],
+                       [batch_size, classes])
+    )
     print("Acquiring and shuffling dataset")
-    #shuffle_train, shuffle_labels_train = random_shuffled_dataset(train)
-    #shuffle_test, shuffle_labels_test = random_shuffled_dataset(test)
-    #shuffle_valid, shuffle_labels_valid = random_shuffled_dataset(validation)
+
     weight_for_0 = num_pneumonia / (num_normal + num_pneumonia)
     weight_for_1 = num_normal / (num_normal + num_pneumonia)
     class_weigths = {0: weight_for_0, 1: weight_for_1}
@@ -161,7 +150,7 @@ def training():
         model.add(Dense(128, activation='relu'))
         model.add(Dropout(0.2))
 
-        model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='sigmoid'))
 
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
@@ -169,9 +158,9 @@ def training():
     #train_dataset = tf.data.Dataset.from_tensor_slices((shuffle_train, shuffle_labels_train)).batch(BATCH_SIZE)
     #val_dataset = tf.data.Dataset.from_tensor_slices((shuffle_valid, shuffle_labels_valid)).batch(len(shuffle_valid))
 
-    options = tf.data.Options()
-    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
-    ds = ds.with_options(options)
+    #options = tf.data.Options()
+    #options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
+    #ds = ds.with_options(options)
     #train_dataset = train_dataset.with_options(options)
 
     print("Creating model")
@@ -180,10 +169,14 @@ def training():
     print("Training...")
     start_time = time.time()
     #multi_worker_model.fit(train_dataset, validation_data=val_dataset,epochs=5, batch_size=BATCH_SIZE, class_weight=class_weigths, verbose=True)
-    multi_worker_model.fit(ds, epochs = 5, validation_data = validation, batch_size=BATCH_SIZE, class_weight = class_weigths, verbose=True)
+    multi_worker_model.fit(ds, epochs = 5, batch_size=BATCH_SIZE, class_weight = class_weigths, verbose=True)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
-#a = sc.parallelize([shuffle_train, shuffle_labels_train])
-#train_set, train_labels, validation_set, validation_labels,class_weigths
-MirroredStrategyRunner(num_slots=2,use_gpu=False,spark=None, local_mode=False,use_custom_strategy=False).run(training)
+spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("testTrain")\
+    .config("spark.driver.memory" , "2g").\
+    config("spark.executor.memory" , "2g").enableHiveSupport().getOrCreate()
+sc = spark.sparkContext
+sc.setLogLevel("Error")
+
+MirroredStrategyRunner(num_slots=2,use_gpu=False,spark=spark, local_mode=False,use_custom_strategy=False).run(training)
