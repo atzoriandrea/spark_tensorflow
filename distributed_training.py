@@ -56,7 +56,7 @@ def train():
     multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
     return multi_worker_model.get_weights()
 
-spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("testTrain")\
+spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("distributedTrain")\
     .config("spark.driver.memory" , "2g")\
     .config("spark.executor.memory" , "2g").enableHiveSupport().getOrCreate()
 sc = spark.sparkContext

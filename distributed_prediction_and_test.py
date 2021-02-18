@@ -9,7 +9,7 @@ from pyspark.sql import SparkSession
 
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" # Must corrispond to the current jdk used by colab
 os.environ["SPARK_HOME"] = "/opt/spark/" # Must corrispond with the downloaded spark (1st line)
-spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("testTrain").enableHiveSupport().getOrCreate()
+spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("distributedPrediction").enableHiveSupport().getOrCreate()
 sc = spark.sparkContext
 sc.setLogLevel("Error")
 
