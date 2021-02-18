@@ -1,0 +1,6 @@
+numpy==1.18.5
+tensorflow==2.3.0
+pyspark==3.0.1
+pandas==1.1.5
+spark_tensorflow_distributor==0.1.0
+matplotlib==3.3.3
