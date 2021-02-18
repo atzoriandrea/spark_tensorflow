@@ -50,5 +50,5 @@ In this file, simply we create a plot in order to represent differences in train
 
 
 ###### Example
-![plot](/home/andrea/Scrivania/photo_2021-02-18_19-18-59.jpg)
+![plot](./plot.png)
 
