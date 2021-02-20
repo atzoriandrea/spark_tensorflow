@@ -54,6 +54,7 @@ In this file, simply we create a plot in order to represent differences in train
 
 ---
 ## Steps to run distribute training and predictions
+Before starting with the configuration you need to download this project and unzip it. 
 
 #### 1 AWS istances configuration by Terraform
 You can follow the instruction in the readme at this link: https://github.com/DanyOrtu97/Spark-Terraform-.git in order to configure the Spark cluster on Amazon AWS
@@ -88,11 +89,13 @@ sh spark-start-slave.sh
 ```
 
 #### 6 Change the Java environment on distribute_training.py
+Open the project folder of distribute training on spark, already downloaded and open the file distribute_training.py
 ```
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" //Java home environment path
 ```
 
 #### 7 Change the Spark Home path
+Open the project folder of distribute training on spark, already downloaded and open the file distribute_training.py
 ```
 os.environ["SPARK_HOME"] = "/opt/spark-3.0.1-bin-hadoop2.7/"
 ```
