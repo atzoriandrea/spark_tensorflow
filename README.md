@@ -62,12 +62,12 @@ You can follow the instruction in the readme at this link: https://github.com/Da
 #### 2 Connection to the master istance on AWS by amzkey.pem
 Open a terminal on the Terraform directory where there is the key file and type:
 ```
-ssh -i amzkey.pem /home/ubuntu/[adsress of master istance]
+ssh -i amzkey.pem /home/ubuntu/[adsress of master instance]
 ```
-Yuo can find the master' address on the AWS console in the istance informations
+Yuo can find the master' address on the AWS console in the instance informations
 
 #### 3 Run Spark and Hadoop on the master
-In the same terminal where you connecting to the master istance, you need to type this command in order to starting Spark and Hadoop:
+In the same terminal where you connecting to the master instance, you need to type this command in order to starting Spark and Hadoop:
 ```
 sh spark-start-master.sh
 ```
@@ -83,19 +83,19 @@ shh [name slave]  //Example ssh s02
 ```
 
 #### 5 Run the slave istances
-On each slave istance you can run this command in order to active the istance for the computation:
+On each slave instance you can run this command in order to active the instance for the computation:
 ```
 sh spark-start-slave.sh
 ```
 
 #### 6 Change the Java environment on distribute_training.py
-Open the project folder of distribute training on spark, already downloaded and open the file distribute_training.py
+Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py
 ```
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" //Java home environment path
 ```
 
 #### 7 Change the Spark Home path
-Open the project folder of distribute training on spark, already downloaded and open the file distribute_training.py
+Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py
 ```
 os.environ["SPARK_HOME"] = "/opt/spark-3.0.1-bin-hadoop2.7/"
 ```
@@ -142,7 +142,7 @@ multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
 python3 distribute_training.py
 ```
 During the training step you can control on the Spark GUI on the browser 
-After the training step yuu have a model saved on the hadoop cluster and you can start the prediction code
+After the training step yuo have a model saved on the hadoop cluster and you can run the prediction code
 
 #### 12 From the master ' terminal run distribute_prediction_and_test.py using this command:
 ```
