@@ -39,7 +39,7 @@ terraform apply
 Type 'yes' when requested
 
 #### 2 Connection to the master istance on AWS by amzkey.pem
-Open a terminal on the Terraform directory where there is the key file and type:
+Open a terminal on the spark-terraform-master directory where there is the key file and type:
 ```
 ssh -i amzkey.pem ubuntu@[address of master instance]
 ```
@@ -58,7 +58,7 @@ sh hadoop-start-master.sh
 #### 4 Connection to slaves istances
 Now one by one you must connect with the slaves using the command:
 ```
-shh [name slave]  //Example ssh s02
+ssh [name slave]  //Example ssh s02
 ```
 
 #### 5 Run the slave istances
