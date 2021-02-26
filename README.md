@@ -1,68 +1,47 @@
-# Spark_Tensorflow
+# Code execution on Amazon AWS using Terraform
+ 
+#### 0 Terraform Download and Installation
 
-Distribute tensorflow training and predictions through spark cluster
-
-This source code is useful for working with tensorflow in a distributed mode using Apache Spark.
-
-We used these packages: \
-Spark 3.0.1\
-Hadoop 2.7.7 or more recent versions\
-numpy 1.18.5\
-tensorflow 2.3.0\
-pyspark 3.0.1\
-pandas 1.1.5\
-spark_tensorflow_distributor 0.1.0\
-matplotlib 3.3.3
-
-### In order to install project requirements (listed above)
 ```
-pip3 install -r requirements.txt
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt install terraform
 ```
-
-### Note
-We assume that you already have configured your spark and hadoop environments. If you did not, configure them before proceeding.
-
----
-
-### Project description
-
-This project has been developed using the MNIST dataset, since it is the most known one and is already included in tensorflow package.
-You will need to modify both *distributed_training.py* and *distributed_prediction_and_test.py* in order to make them working with your own spark and hadoop environment.
-
----
-#### distributed_training.py
-
-In this file, we acquire the MNIST train set. Then, we preprocess it in order to make it distributable on cluster nodes.\
-Then, each node will create his own model and all the training steps are performed in synchronized mode on the entire cluster, using ALL AVAILABLE CPU CORES.
-Then, the trained model will be saved on the driver node.
-
----
-
-#### distributed_prediction_and_test.py
-
-In this file, we acquire the MNIST test set. Then, we distribute a .parquet file into HDFS in order to make it available to all nodes.
-Them, the framework will compute all the predictions and the resulting accuracy score.
-
----
-#### Spark_Tensorflow_distributed_Plot.ipynb
-
-In this file, simply we create a plot in order to represent differences in training and prediction times with different number of nodes.
-
-
-###### Example
-![plot](./plot.png)
-
----
-## Steps to run distribute training and predictions
-Before starting with the configuration you need to download this project and unzip it. 
 
 #### 1 AWS istances configuration by Terraform
-You can follow the instruction in the readme at this link: https://github.com/DanyOrtu97/Spark-Terraform-.git in order to configure the Spark cluster on Amazon AWS
+```
+mkdir distributed_project
+cd distributed_project
+git clone https://github.com/DanyOrtu97/Spark-Terraform-.git
+cd spark-terraform-master/app
+git clone https://github.com/atzoriandrea/spark_tensorflow.git
+cd ..
+```
+Update terraform.tfvars file
+```
+access_key="<YOUR AWS ACCESS KEY>"
+secret_key="<YOUR AWS SECRET KEY>"
+token="<YOUR AWS TOKEN>"
+```
+You can find the AWS ACCES KEY, AWS SECRET KEY and AWS TOKEN on your AWS panel account on "Account Details"
+```
+ssh-keygen -f localkey
+```
+Login to your AWS account and create a new key pairs with name "amzkey" and in ".pem" format.
+You can follow the guide on https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair if you have problems with key generation.
+Download amzkey.pem and copy it into your spark-terraform-master folder
+
+```
+chmod 400 amzkey.pem
+terraform init 
+terraform apply
+```
+Type 'yes' when requested
 
 #### 2 Connection to the master istance on AWS by amzkey.pem
 Open a terminal on the Terraform directory where there is the key file and type:
 ```
-ssh -i amzkey.pem /home/ubuntu/[adsress of master instance]
+ssh -i amzkey.pem ubuntu@[address of master instance]
 ```
 Yuo can find the master' address on the AWS console in the instance informations
 
@@ -88,14 +67,14 @@ On each slave instance you can run this command in order to active the instance 
 sh spark-start-slave.sh
 ```
 
-#### 6 Change the Java environment on distribute_training.py
-Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py
+#### 6 Change the Java environment on spark_tensorflow-master/distribute_training.py
+Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py inside spark_tensorflow-master folder
 ```
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" //Java home environment path
 ```
 
 #### 7 Change the Spark Home path
-Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py
+Open the project folder of distributed training on spark, already downloaded and open the file distribute_training.py inside spark_tensorflow-master folder
 ```
 os.environ["SPARK_HOME"] = "/opt/spark-3.0.1-bin-hadoop2.7/"
 ```
