@@ -39,6 +39,7 @@ terraform apply
 Type 'yes' when requested
 
 #### 2 Connection to the master istance on AWS by amzkey.pem
+At this point, you must have all your instances running on AWS.
 Open a terminal on the spark-terraform-master directory where there is the key file and type:
 ```
 ssh -i amzkey.pem ubuntu@[address of master instance]
