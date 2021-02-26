@@ -8,7 +8,7 @@ sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.rel
 sudo apt install terraform
 ```
 
-#### 1 AWS istances configuration by Terraform
+#### 1 AWS instances configuration by Terraform
 ```
 mkdir distributed_project
 cd distributed_project
@@ -78,9 +78,12 @@ The same as in the "variable.tf" file is needed in "terraform.tfstate" file into
 You need to adapt the region in every place in which appear, with your region
 
 
+Now in the opened terminal on "spark-terraform-master" folder:
+
 ```
 ssh-keygen -f localkey
 ```
+
 Login to your AWS account and create a new key pairs with name "amzkey" and in ".pem" format.
 You can follow the guide on https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair if you have problems with key generation.
 Download amzkey.pem and copy it into your spark-terraform-master folder
@@ -92,8 +95,8 @@ terraform apply
 ```
 Type 'yes' when requested
 
-#### 2 Connection to the master istance on AWS by amzkey.pem
-At this point, you must have all your instances running on AWS.
+#### 2 Connection to the master instance on AWS by amzkey.pem
+At this point, you must have all your instances created on AWS.
 Open a terminal on the spark-terraform-master directory where there is the key file and type:
 ```
 ssh -i amzkey.pem ubuntu@[address of master instance]
@@ -116,7 +119,7 @@ Now one by one you must connect with the slaves using the command:
 ssh [name slave]  //Example ssh s02
 ```
 
-#### 5 Run the slave istances
+#### 5 Run the slave instances
 On each slave instance you can run this command in order to active the instance for the computation:
 ```
 sh spark-start-slave.sh
