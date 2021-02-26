@@ -96,6 +96,8 @@ terraform apply
 ```
 Type 'yes' when requested
 
+#####NOTE: The process can take some time, due to the installations and operations it has to perform on each node 
+
 #### 2 Connection to the master instance on AWS by amzkey.pem
 At this point, you must have all your instances created on AWS.
 Open a terminal on the spark-terraform-master directory where there is the key file and type:
@@ -118,6 +120,23 @@ sh hadoop-start-master.sh
 Now one by one you must connect with the slaves using the command:
 ```
 ssh [name slave]  //Example ssh s02
+```
+
+#####NOTE: You can find the slaves' hostnames on "variable.tf" file inside spark-terraform-master folder
+```
+variable "hostnames" {
+    default = {
+        "0" = "s02"
+        "1" = "s03"
+        "2" = "s04"
+        "3" = "s05"
+        "4" = "s06"
+        "5" = "s07"
+        "6" = "s08"
+        "7" = "s09"
+        "8" = "s10"
+        "9" = "s11"
+    }
 ```
 
 #### 5 Run the slave instances
