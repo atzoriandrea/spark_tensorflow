@@ -1,5 +1,6 @@
 # Code execution on Amazon AWS using Terraform
- 
+---
+
 #### 0 Terraform Download and Installation
 
 ```
@@ -59,10 +60,10 @@ resource "aws_instance" "Datanode" {
   private_ip             = lookup(var.ips, count.index)
   vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
 ```
-You can find the subnet_id on your AWS account searching in the master's info above subnet_id information
+You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1d" region.
+After the creation you can put it in the rows described above
 
-
-Make sure that the zone/region on your AWS instances is the same of "variable.tf" file into spark-terraform-master folder already downloaded
+Make sure that the zone/region just choice ("us-east-1d") is the same of "variable.tf" file into spark-terraform-master folder already downloaded
 ```
 variable "region" {
     type = string
@@ -70,12 +71,12 @@ variable "region" {
 }
 ```
 
-The same as in the "variable.tf" file is needed in "terraform.tfstate" file into spark-terraform-master folder
+and in "terraform.tfstate" file into spark-terraform-master folder
 ```
 "availability_zone": "us-east-1d",
 ```
 
-You need to adapt the region in every place in which appear, with your region
+You need to check and eventually correct the region in every place in which appear, with your region "us-east-1d"
 
 
 Now in the opened terminal on "spark-terraform-master" folder:
@@ -89,7 +90,7 @@ You can follow the guide on https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/
 Download amzkey.pem and copy it into your spark-terraform-master folder
 
 ```
-chmod 400 amzkey.pem
+chmod 400 amzkey.pem  //change permissions for the key
 terraform init 
 terraform apply
 ```
