@@ -24,6 +24,60 @@ secret_key="<YOUR AWS SECRET KEY>"
 token="<YOUR AWS TOKEN>"
 ```
 You can find the AWS ACCES KEY, AWS SECRET KEY and AWS TOKEN on your AWS panel account on "Account Details"
+
+
+Modify the subnet_id on "main.tf" file at row 41 and 109 into spark-terraform-master folder already downloaded
+
+for namenode at row 41
+```
+# namenode (master)
+resource "aws_instance" "Namenode" {
+  subnet_id = "subnet-1c40f47a"
+  count         = var.namenode_count
+  ami           = var.ami_image
+  instance_type = var.instance_type
+  key_name      = var.aws_key_name
+  tags = {
+    Name = "s01"
+  }
+  private_ip             = "172.31.0.101"
+  vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
+```
+
+for datanodes at row 109
+```
+# datanode (slaves)
+resource "aws_instance" "Datanode" {
+  subnet_id = "subnet-1c40f47a"
+  count         = var.datanode_count
+  ami           = var.ami_image
+  instance_type = var.instance_type
+  key_name      = var.aws_key_name
+  tags = {
+    Name = lookup(var.hostnames, count.index)
+  }
+  private_ip             = lookup(var.ips, count.index)
+  vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
+```
+You can find the subnet_id on your AWS account searching in the master's info above subnet_id information
+
+
+Make sure that the zone/region on your AWS instances is the same of "variable.tf" file into spark-terraform-master folder already downloaded
+```
+variable "region" {
+    type = string
+    default = "us-east-1"
+}
+```
+
+The same as in the "variable.tf" file is needed in "terraform.tfstate" file into spark-terraform-master folder
+```
+"availability_zone": "us-east-1d",
+```
+
+You need to adapt the region in every place in which appear, with your region
+
+
 ```
 ssh-keygen -f localkey
 ```
