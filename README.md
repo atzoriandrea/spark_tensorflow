@@ -147,7 +147,7 @@ On each slave instance you can run this command in order to active the instance 
 sh spark-start-slave.sh
 ```
 
-#### 6 Modify the number of cores to run
+#### 6 Modify the number of cores to run in spark_tensorflow/distributed_training.py
 If it is necessary you can modify the number of cores that the nodes on the cluster can use. From the master terminal open the file distributed_training.py and change this row (row 64) with the number of cores. 
 Note that we have 8 slave nodes, each of these have 2 cores, so if you start the training with 2 nodes, you should use 4 cores.
 ```
@@ -178,7 +178,7 @@ if spark is None:
   spark = SparkSession.builder.getOrCreate()
 ```
 
-#### 8 Modify the number of epochs (optional)
+#### 8 Modify the number of epochs (optional) in spark_tensorflow/distributed_training.py
 You can modify the number of epochs on file distribute_training.py at row 56:
 ```
 multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
@@ -186,13 +186,13 @@ multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
 
 #### 9 From the master' terminal run the distribute_training.py using this command:
 ```
-python3 distribute_training.py
+python3 spark_tensorflow/distribute_training.py
 ```
 During the training step you can control on the Spark GUI on the browser 
 After the training step yuo have a model saved on the hadoop cluster and you can run the prediction code
 
 #### 10 From the master ' terminal run distribute_prediction_and_test.py using this command:
 ```
-python3 distribute_prediction_and_test.py
+python3 spark_tensorflow/distribute_prediction_and_test.py
 ```
 You have finished the computation and you can modify the number of nodes of the cluster in order to test with a different situation.
