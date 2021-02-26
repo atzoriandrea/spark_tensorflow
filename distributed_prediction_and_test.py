@@ -8,8 +8,8 @@ from pyspark.sql.functions import  col, pandas_udf, PandasUDFType
 from pyspark.sql import SparkSession
 
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" # Must corrispond to the current jdk used by colab
-os.environ["SPARK_HOME"] = "/opt/spark/" # Must corrispond with the downloaded spark (1st line)
-spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("distributedPrediction").enableHiveSupport().getOrCreate()
+os.environ["SPARK_HOME"] = "/opt/spark-3.0.1-bin-hadoop2.7/" # Must corrispond with the downloaded spark (1st line)
+spark = SparkSession.builder.master("spark://172.31.0.101:7077").appName("distributedPrediction").enableHiveSupport().getOrCreate()
 sc = spark.sparkContext
 sc.setLogLevel("Error")
 
@@ -81,7 +81,7 @@ def main():
     print("Creating dataset parquet file...")
     pandas_df.to_parquet(file_name)
     print("Copying dataset parquet file into HDFS...")
-    (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', file_name, "/user/andrea/"])
+    (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', file_name, "/user/ubuntu/"])
     df = spark.read.parquet(file_name)
     print("Found: " + str(df.count()) + " images into HDFS parquet file")
     print("Computing predictions...")

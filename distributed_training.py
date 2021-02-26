@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 import os
 import tensorflow as tf
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64" # Must corrispond to the current jdk used by colab
-os.environ["SPARK_HOME"] = "/opt/spark/"
+os.environ["SPARK_HOME"] = "/opt/spark-3.0.1-bin-hadoop2.7/"
 
 
 def build_and_compile_cnn_model():
@@ -53,15 +53,15 @@ def train():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
     train_datasets = train_datasets.with_options(options)
     multi_worker_model = build_and_compile_cnn_model()
-    multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
+    multi_worker_model.fit(x=train_datasets, epochs=10, steps_per_epoch=60000//32)
     return multi_worker_model.get_weights()
 
-spark = SparkSession.builder.master("spark://192.168.1.38:7077").appName("distributedTrain")\
+spark = SparkSession.builder.master("spark://172.31.0.101:7077").appName("distributedTrain")\
     .config("spark.driver.memory" , "2g")\
     .config("spark.executor.memory" , "2g").enableHiveSupport().getOrCreate()
 sc = spark.sparkContext
 sc.setLogLevel("Error")
-weights = MirroredStrategyRunner(num_slots=sc.defaultParallelism, spark=spark, use_gpu=False).run(train)
+weights = MirroredStrategyRunner(num_slots=2, spark=spark, use_gpu=True, gpu_resource_name="gpu").run(train)
 model = build_and_compile_cnn_model()
 model.set_weights(weights)
 model.save("./trained_model.h5")
