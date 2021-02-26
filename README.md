@@ -14,6 +14,7 @@ sudo apt install terraform
 mkdir distributed_project
 cd distributed_project
 git clone https://github.com/DanyOrtu97/Spark-Terraform-.git
+mv Spark-Terraform- spark-terraform-master
 cd spark-terraform-master/app
 git clone https://github.com/atzoriandrea/spark_tensorflow.git
 cd ..
