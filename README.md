@@ -65,6 +65,8 @@ resource "aws_instance" "Datanode" {
 You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1d" region.
 After the creation you can put it in the rows described above
 
+##### NOTE: If the security group "Hadoop_cluster_sc" on EC2 > Security Group is already in your AWS account, you must delete it in order to avoid duplicate error messages 
+
 Make sure that the zone/region just choice ("us-east-1d") is the same of "variable.tf" file into spark-terraform-master folder already downloaded
 ```
 variable "region" {
