@@ -62,12 +62,12 @@ resource "aws_instance" "Datanode" {
   private_ip             = lookup(var.ips, count.index)
   vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
 ```
-You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1d" region.
+You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1c" region.
 After the creation you can put it in the rows described above
 
 ##### NOTE: If the security group "Hadoop_cluster_sc" on EC2 > Security Group is already in your AWS account, you must delete it in order to avoid duplicate error messages 
 
-Make sure that the zone/region just choice ("us-east-1d") is the same of "variable.tf" file into spark-terraform-master folder already downloaded
+Make sure that the zone/region just choice ("us-east-1c") is the same of "variable.tf" file into spark-terraform-master folder already downloaded
 ```
 variable "region" {
     type = string
@@ -77,10 +77,10 @@ variable "region" {
 
 and in "terraform.tfstate" file into spark-terraform-master folder
 ```
-"availability_zone": "us-east-1d",
+"availability_zone": "us-east-1c",
 ```
 
-You need to check and eventually correct the region in every place in which appear, with your region "us-east-1d"
+You need to check and eventually correct the region in every place in which appear, with your region "us-east-1c"
 
 
 Now in the opened terminal on "spark-terraform-master" folder:
