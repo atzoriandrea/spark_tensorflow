@@ -155,6 +155,11 @@ weights = MirroredStrategyRunner(num_slots=sc.defaultParallelism, spark=spark, u
 ```
 You need to add a row in "mirror_strategy_runner.py" in the def at line 52:
 
+You can modify this file by executing the following row in master's terminal
+```
+sudo gedit /home/ubuntu/.local/lib/python3.8/site-packages/spark_tensorflow_distributor/mirrored_strategy_runner.py
+```
+then
 ```
 def __init__(self,
                  *,
