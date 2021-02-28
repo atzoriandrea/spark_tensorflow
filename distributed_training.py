@@ -61,7 +61,7 @@ spark = SparkSession.builder.master("spark://172.31.0.101:7077").appName("distri
     .config("spark.executor.memory" , "2g").enableHiveSupport().getOrCreate()
 sc = spark.sparkContext
 sc.setLogLevel("Error")
-weights = MirroredStrategyRunner(num_slots=2, spark=spark, use_gpu=True, gpu_resource_name="gpu").run(train)
+weights = MirroredStrategyRunner(num_slots=2, spark=spark, use_gpu=False).run(train)
 model = build_and_compile_cnn_model()
 model.set_weights(weights)
 model.save("./trained_model.h5")
