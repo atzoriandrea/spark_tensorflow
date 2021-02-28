@@ -145,7 +145,7 @@ You must add two rows on the spark_distributor package in order to pass the spar
 ```
 weights = MirroredStrategyRunner(num_slots=sc.defaultParallelism, spark=spark, use_gpu=False).run(train)
 ```
-You need to add a row in "mirror_strategy_runner.py" in the def at line 52:
+You need to add a row in "mirror_strategy_runner.py" in the def at line 52, adding "spark = None,":
 
 You can modify this file by executing the following row in master's terminal
 ```
@@ -157,13 +157,17 @@ def __init__(self,
                  *,
                  num_slots,
                  local_mode=False,
-                 spark = None,
+                 spark = None,   
                  use_gpu=True,
                  gpu_resource_name='gpu',
                  use_custom_strategy=False):
 ```
 
-and to change the row 135 inserting:
+and, at row 135 (or near) replace
+```
+spark = SparkSession.builder.getOrCreate()
+```
+with
 ```
 if spark is None:
   spark = SparkSession.builder.getOrCreate()
