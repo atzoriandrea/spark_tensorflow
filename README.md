@@ -108,7 +108,7 @@ Open a terminal on the spark-terraform-master directory where there is the key f
 ```
 ssh -i amzkey.pem ubuntu@[address of master instance]
 ```
-Yuo can find the master' address on the AWS console in the instance informations
+The master is named with hostname s01
 
 #### 3 Run Spark and Hadoop on the master
 In the same terminal where you connecting to the master instance, you need to type this command in order to starting Spark and Hadoop:
@@ -120,7 +120,7 @@ sh spark-start-master.sh
 sh hadoop-start-master.sh
 ```
 
-#### 4 Connection to slaves istances
+#### 4 Connection to slaves instances
 Now one by one you must connect with the slaves using the command:
 ```
 ssh [name slave]  //Example ssh s02
