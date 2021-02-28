@@ -28,7 +28,6 @@ token="<YOUR AWS TOKEN>"
 ```
 You can find the AWS ACCES KEY, AWS SECRET KEY and AWS TOKEN on your AWS panel account on "Account Details"
 
-
 Modify the subnet_id on "main.tf" file at row 41 and 109 into spark-terraform-master folder already downloaded
 
 for namenode at row 41
@@ -63,7 +62,7 @@ resource "aws_instance" "Datanode" {
   vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
 ```
 You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1c" region.
-After the creation you can put it in the rows described above
+After the creation you can put its id in the rows described above
 
 ##### NOTE: If the security group "Hadoop_cluster_sc" on EC2 > Security Group is already in your AWS account, you must delete it in order to avoid duplicate error messages 
 
@@ -74,13 +73,6 @@ variable "region" {
     default = "us-east-1"
 }
 ```
-
-and in "terraform.tfstate" file into spark-terraform-master folder
-```
-"availability_zone": "us-east-1c",
-```
-
-You need to check and eventually correct the region in every place in which appear, with your region "us-east-1c"
 
 
 Now in the opened terminal on "spark-terraform-master" folder:
