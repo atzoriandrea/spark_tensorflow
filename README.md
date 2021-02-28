@@ -174,15 +174,26 @@ You can modify the number of epochs on file distribute_training.py at row 56:
 ```
 multi_worker_model.fit(x=train_datasets, epochs=1, steps_per_epoch=60000//32)
 ```
+#### 9 Environment variables update and hdfs prepairing
+The recent update of spark raised a problem with JVM libraries. This is the solution.
+```
+export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9-src.zip:$PYTHONPATH
+export PATH=$SPARK_HOME/bin:$SPARK_HOME/python:$PATH
+```
+After you started the hadoop cluster and ALL DATANODES ARE ALIVE:
+```
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/ubuntu
+```
 
-#### 9 From the master' terminal run the distributed_training.py using this command:
+#### 10 From the master' terminal run the distributed_training.py using this command:
 ```
 python3 spark_tensorflow/distributed_training.py
 ```
 During the training step you can control on the Spark GUI on the browser 
 After the training step yuo have a model saved on the hadoop cluster and you can run the prediction code
 
-#### 10 From the master ' terminal run distribute_prediction_and_test.py using this command:
+#### 11 From the master ' terminal run distribute_prediction_and_test.py using this command:
 ```
 python3 spark_tensorflow/distributed_prediction_and_test.py
 ```
