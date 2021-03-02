@@ -60,19 +60,17 @@ resource "aws_instance" "Datanode" {
   }
   private_ip             = lookup(var.ips, count.index)
   vpc_security_group_ids = [aws_security_group.Hadoop_cluster_sc.id]
+  
 ```
-You can create the subnet_id on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet for "us-east-1c" region.
+IMPORTANT! You must check this link
+https://console.aws.amazon.com/vpc/home?region=us-east-1#subnets:
+to check which subnet includes the correct addresses range. Check which one has 172.31.0.0/20 in IPv4 CIDR column and remember its Subnet ID value.
+
+Then, create the network interface on your AWS account in EC2 > Network interfaces > Create a network interface and choose the subnet according to the previous mentioned Subnet ID value.
+
 After the creation you can put its id in the rows described above
 
 ##### NOTE: If the security group "Hadoop_cluster_sc" on EC2 > Security Group is already in your AWS account, you must delete it in order to avoid duplicate error messages 
-
-Make sure that the zone/region just choice ("us-east-1c") is the same of "variable.tf" file into spark-terraform-master folder already downloaded
-```
-variable "region" {
-    type = string
-    default = "us-east-1"
-}
-```
 
 
 Now in the opened terminal on "spark-terraform-master" folder:
